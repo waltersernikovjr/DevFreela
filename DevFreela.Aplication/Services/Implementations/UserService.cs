@@ -22,7 +22,7 @@ namespace DevFreela.Aplication.Services.Implementations
             var user = new User(inputModel.FullName, inputModel.Email, inputModel.BirthDate, inputModel.Password);
 
             _dbContext.Users.Add(user);
-
+            _dbContext.SaveChanges();
             return user.Id;
         }
 
