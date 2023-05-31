@@ -1,5 +1,7 @@
 ﻿using DevFreela.Core.Entites;
+using DevFreela.Core.Repositories;
 using DevFreela.Infraestructure.Persistence;
+using DevFreela.Infraestructure.Persistence.Repositories;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,10 +11,11 @@ namespace DevFreela.Aplication.Commands.CreateProject
     public class CreateProjectHandler : IRequestHandler<CreateProjectCommand, int>
     {
         private readonly DevFreelaDbContext _dbContext;
+        private readonly IProjectRepository _projectRepository;
 
-        public CreateProjectHandler(DevFreelaDbContext dbContext)
+        public CreateProjectHandler(IProjectRepository projectRepository)
         {
-            _dbContext = dbContext;
+            _projectRepository = projectRepository;
         }
 
         public async Task<int> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
@@ -20,10 +23,7 @@ namespace DevFreela.Aplication.Commands.CreateProject
             var project = new Project(request.Title, request.Description, request.IdClient,
                                         request.IdFreelance, request.TotalCost);
 
-            await _dbContext.Projects.AddAsync(project);
-            await _dbContext.SaveChangesAsync();
-
-            return project.Id;
+            return await _projectRepository.CreateAsync(project);
         }
     }
 }

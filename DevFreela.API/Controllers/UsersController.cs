@@ -1,43 +1,37 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using DevFreela.API.Models;
-using DevFreela.Aplication.Services.Interfaces;
-using DevFreela.Aplication.Services.Implementations;
-using DevFreela.Aplication.InputModels;
+﻿using DevFreela.Aplication.Commands.CreateUser;
+using DevFreela.Aplication.Queries.GetByIdUser;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace DevFreela.API.Controllers
 {
     [Route("api/users")]
     public class UsersController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IMediator _mediator;
 
-        public UsersController(IUserService userService)
+        public UsersController( IMediator mediator)
         {
-            _userService = userService;
+            _mediator = mediator;
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var usuario = _userService.GetById(id);
+            var query = new GetByIdUserQuery(id);
+
+            var usuario = await _mediator.Send(query);
 
             return Ok(usuario);
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] NewUserInputModel inputModel)
+        public async Task<IActionResult> Post([FromBody] CreateUserCommand command)
         {
-            var id = _userService.Create(inputModel);
+            var id = await _mediator.Send(command);
 
-            return CreatedAtAction(nameof(GetById), new {id = id }, inputModel);
-        }
-
-        [HttpPut("{id}/login")]
-        public IActionResult Login(int id, [FromBody] LoginUserInputModel inputModel)
-        {
-            _userService.Login(inputModel);
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetById), new { id }, command);
         }
     }
 }

@@ -1,8 +1,9 @@
-﻿using System;
+﻿using MediatR;
+using System;
 
-namespace DevFreela.Aplication.InputModels
+namespace DevFreela.Aplication.Commands.CreateUser
 {
-    public class NewUserInputModel
+    public class CreateUserCommand : IRequest<int>
     {
         public string FullName { get; set; }
 
