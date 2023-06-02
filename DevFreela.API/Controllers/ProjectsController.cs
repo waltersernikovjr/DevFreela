@@ -8,6 +8,7 @@ using DevFreela.Aplication.Queries.GetAllProject;
 using DevFreela.Aplication.Queries.GetByIdProject;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DevFreela.API.Controllers
@@ -47,9 +48,12 @@ namespace DevFreela.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreateProjectCommand command)
         {
-            if (command.Title.Length > 50)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                var messages = ModelState
+                    .SelectMany(ms => ms.Value.Errors)
+                    .Select(e => e.ErrorMessage);
+                return BadRequest(messages);
             }
 
             var id = await _mediator.Send(command);
